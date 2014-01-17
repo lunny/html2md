@@ -1,0 +1,323 @@
+// a go port of html2md javascript version
+
+package html2md
+
+import (
+	"fmt"
+	"regexp"
+	"strconv"
+	"strings"
+)
+
+func P() *Rule {
+	return &Rule{
+		patterns: []string{"p"},
+		replacement: func(innerHTML string, attrs []string) string {
+			if len(attrs) > 1 {
+				return "\n\n" + attrs[1] + "\n"
+			}
+			return ""
+		},
+	}
+}
+
+func Br() *Rule {
+	return &Rule{
+		patterns: []string{"br"},
+		tp:       Void,
+		replacement: func(innerHTML string, attrs []string) string {
+			return "  \n"
+		},
+	}
+}
+
+func H() *Rule {
+	return &Rule{
+		patterns: []string{"h([1-6])"},
+		replacement: func(innerHTML string, attrs []string) string {
+			if len(attrs) < 4 || attrs[0] != attrs[len(attrs)-1] {
+				return ""
+			}
+
+			hLevel, err := strconv.Atoi(attrs[0])
+			if err != nil {
+				fmt.Println(err)
+				return ""
+			}
+
+			return "\n\n" + strings.Repeat("#", hLevel) +
+				" " + attrs[2] + "\n"
+		},
+	}
+}
+
+func Hr() *Rule {
+	return &Rule{
+		patterns: []string{"hr"},
+		tp:       Void,
+		replacement: func(innerHTML string, attrs []string) string {
+			return "\n\n* * *\n"
+		},
+	}
+}
+
+func B() *Rule {
+	return &Rule{
+		patterns: []string{"b", "strong"},
+		replacement: func(innerHTML string, attrs []string) string {
+			if len(attrs) > 1 {
+				return "**" + attrs[1] + "**"
+			}
+			return ""
+		},
+	}
+}
+
+func I() *Rule {
+	return &Rule{
+		patterns: []string{"i", "em"},
+		replacement: func(innerHTML string, attrs []string) string {
+			if len(attrs) > 1 {
+				return "_" + attrs[1] + "_"
+			}
+			return ""
+		},
+	}
+}
+
+func Code() *Rule {
+	return &Rule{
+		patterns: []string{"code"},
+		replacement: func(innerHTML string, attrs []string) string {
+			if len(attrs) > 1 {
+				return "`" + attrs[1] + "`"
+			}
+			return ""
+		},
+	}
+}
+
+func A() *Rule {
+	return &Rule{
+		patterns: []string{"a"},
+		replacement: func(innerHTML string, attrs []string) string {
+			var href string
+			hrefR := AttrRegExp("href")
+			matches := hrefR.FindStringSubmatch(attrs[0])
+			if len(matches) > 1 {
+				href = matches[1]
+			}
+
+			/*targetR := AttrRegExp("target")
+			matches = targetR.FindStringSubmatch(attrs[0])
+			if len(matches) > 1 {
+				target = matches[1]
+			}*/
+
+			//if len(target) > 0 {
+			//	return "[" + alt + "]" + "(" + src + " \"" + title + "\")"
+			//}
+			return "[" + attrs[1] + "]" + "(" + href + ")"
+		},
+	}
+}
+
+func Img() *Rule {
+	return &Rule{
+		patterns: []string{"img"},
+		tp:       Void,
+		replacement: func(innerHTML string, attrs []string) string {
+			var src, alt, title string
+			srcR := AttrRegExp("src")
+			matches := srcR.FindStringSubmatch(attrs[0])
+			if len(matches) > 1 {
+				src = matches[1]
+			}
+
+			altR := AttrRegExp("alt")
+			matches = altR.FindStringSubmatch(attrs[0])
+			if len(matches) > 1 {
+				alt = matches[1]
+			}
+
+			titleR := AttrRegExp("title")
+			matches = titleR.FindStringSubmatch(attrs[0])
+			if len(matches) > 1 {
+				title = matches[1]
+			}
+
+			if len(title) > 0 {
+				return "![" + alt + "]" + "(" + src + " \"" + title + "\")"
+			}
+			return "![" + alt + "]" + "(" + src + ")"
+		},
+	}
+}
+
+func replaceEls(html, tag string, tp int, replacement ReplaceFunc) string {
+	var pattern string
+	if tp == Void {
+		pattern = "<" + tag + "\\b([^>]*)\\/?>"
+	} else {
+		pattern = "<" + tag + "\\b([^>]*)>([\\s\\S]*?)<\\/" + tag + ">"
+	}
+
+	re := regexp.MustCompile(pattern)
+	return re.ReplaceAllStringFunc(html, func(subHtml string) string {
+		matches := re.FindStringSubmatch(subHtml)
+		//fmt.Println("xx", subHtml, matches)
+		return replacement(subHtml, matches[1:])
+	})
+}
+
+func replaceLists(tag, html string) string {
+	re := regexp.MustCompile(`<(` + tag + `)\b[^>]*>([\s\S]*?)</` + tag + `>`)
+	html = re.ReplaceAllStringFunc(html, func(innerHTML string) string {
+		var lis = strings.Split(innerHTML, "</li>")
+		var newLis = make([]string, 0)
+		var prefix string = "*   "
+
+		for i, li := range lis[:len(lis)-1] {
+			if tag == "ol" {
+				prefix = fmt.Sprintf("%d.  ", i+1)
+			}
+
+			re := regexp.MustCompile(`([\s\S]*)<li[^>]*>([\s\S]*)`)
+			newLis = append(newLis, re.ReplaceAllStringFunc(li, func(innerHTML string) string {
+				matches := re.FindStringSubmatch(innerHTML)
+				innerHTML = regexp.MustCompile(`/^\s+/`).ReplaceAllString(matches[2], "")
+				innerHTML = regexp.MustCompile(`/\n\n/g`).ReplaceAllString(innerHTML, "\n\n    ")
+				// indent nested lists
+				innerHTML = regexp.MustCompile(`/\n([ ]*)+(\*|\d+\.) /g`).ReplaceAllString(innerHTML, "\n$1    $2 ")
+				return prefix + innerHTML
+			}))
+		}
+
+		return strings.Join(newLis, "\n")
+	})
+
+	return "\n\n" + regexp.MustCompile(`[ \t]+\n|\s+$`).ReplaceAllString(html, "")
+}
+
+func replaceBlockquotes(html string) string {
+	re := regexp.MustCompile(`<blockquote\b[^>]*>([\s\S]*?)</blockquote>`)
+	return re.ReplaceAllStringFunc(html, func(inner string) string {
+		matches := re.FindStringSubmatch(inner)
+		inner = regexp.MustCompile(`^\s+|\s+$`).ReplaceAllString(matches[1], "")
+		inner = cleanUp(inner)
+		inner = regexp.MustCompile(`^/gm`).ReplaceAllString(inner, "> ")
+		inner = regexp.MustCompile(`^(>([ \t]{2,}>)+)`).ReplaceAllString(inner, "> >")
+		return inner
+	})
+}
+
+func blockQuote(content string) string {
+	// Blockquotes
+	//var deepest = `<blockquote\b[^>]*>((?:(?!<blockquote)[\s\S])*?)</blockquote>`
+	var deepest = `<blockquote\b[^>]*>((?:[\s\S])*?)</blockquote>`
+
+	re := regexp.MustCompile(deepest)
+	content = re.ReplaceAllStringFunc(content, func(str string) string {
+		return replaceBlockquotes(str)
+	})
+
+	return content
+}
+
+func cleanUp(ct string) string {
+	// trim leading/trailing whitespace
+	str := regexp.MustCompile("^[\t\r\n]+|[\t\r\n]+$").ReplaceAllString(ct, "")
+	str = regexp.MustCompile(`\n\s+\n`).ReplaceAllString(str, "\n\n")
+	// limit consecutive linebreaks to 2
+	str = regexp.MustCompile(`\n{3,}`).ReplaceAllString(str, "\n\n")
+
+	//去除STYLE
+	re := regexp.MustCompile("\\<style[\\S\\s]+?\\</style\\>")
+	str = re.ReplaceAllString(str, "")
+
+	//去除SCRIPT
+	re = regexp.MustCompile("\\<script[\\S\\s]+?\\</script\\>")
+	str = re.ReplaceAllString(str, "")
+
+	//去除所有尖括号内的HTML代码，并换成换行符
+	re = regexp.MustCompile("\\<[\\S\\s]+?\\>")
+	str = re.ReplaceAllString(str, "\n")
+
+	//去除连续的换行符
+	//re = regexp.MustCompile("\\s{2,}")
+	//str = re.ReplaceAllString(str, "\n")
+	return str
+}
+
+func pre(content string) string {
+	// Pre code blocks
+	re := regexp.MustCompile(`<pre\b[^>]*>([\s\S]*)</pre>`)
+	content = re.ReplaceAllStringFunc(content, func(innerHTML string) string {
+		matches := re.FindStringSubmatch(innerHTML)
+		// convert tabs to spaces (you know it makes sense)
+		r := regexp.MustCompile(`/^\t+`)
+		innerHTML = r.ReplaceAllString(matches[1], "  ")
+		r = regexp.MustCompile(`/\n`)
+		innerHTML = r.ReplaceAllString(innerHTML, "\n    ")
+		return "\n\n    " + innerHTML + "\n"
+	})
+	return content
+}
+
+func ul(content string) string {
+	return ulol("ul", content)
+}
+
+func ol(content string) string {
+	return ulol("ol", content)
+}
+
+func ulol(tag, content string) string {
+	// Lists
+
+	// Escape numbers that could trigger an ol
+	// If there are more than three spaces before the code, it would be in a pre tag
+	// Make sure we are escaping the period not matching any character
+
+	//content = string.replace(^(\s{0,3}\d+)\. /g, "$1\\. ");
+
+	// Converts lists that have no child lists (of same type) first, then works it"s way up
+	//var noChildrenRegex = /<(ul|ol)\b[^>]*>(?:(?!<ul|<ol)[\s\S])*?<\/\1>/gi;
+	var noChildrenRegex = `<(` + tag + `)\b[^>]*>(?:[\s\S])*?</` + tag + `>`
+	re := regexp.MustCompile(noChildrenRegex)
+	return re.ReplaceAllStringFunc(content, func(str string) string {
+		return replaceLists(tag, str)
+	})
+}
+
+func init() {
+	AddRule("p", P())
+	AddRule("i", I())
+	AddRule("h", H())
+	AddRule("hr", Hr())
+	AddRule("img", Img())
+	AddRule("b", B())
+	AddRule("br", Br())
+	AddRule("code", Code())
+	AddRule("a", A())
+
+	AddConvert(pre)
+	AddConvert(ul)
+	AddConvert(ol)
+	AddConvert(blockQuote)
+	AddConvert(cleanUp)
+}
+
+func ToMarkdown(content string) string {
+	for _, rule := range rules {
+		for _, pattern := range rule.patterns {
+			content = replaceEls(content, pattern, rule.tp, rule.replacement)
+		}
+	}
+
+	for _, convert := range converts {
+		content = convert(content)
+	}
+
+	return content
+}
