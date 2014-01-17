@@ -308,7 +308,7 @@ func init() {
 	AddConvert(cleanUp)
 }
 
-func ToMarkdown(content string) string {
+func Convert(content string) string {
 	for _, rule := range rules {
 		for _, pattern := range rule.patterns {
 			content = replaceEls(content, pattern, rule.tp, rule.replacement)

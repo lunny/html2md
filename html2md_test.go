@@ -93,7 +93,7 @@ alert(i);
 
 func TestHtml2md(t *testing.T) {
 	for _, hm := range html {
-		mk := ToMarkdown(hm)
+		mk := Convert(hm)
 		fmt.Println(mk)
 	}
 }
