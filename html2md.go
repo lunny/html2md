@@ -147,7 +147,13 @@ func Img() *Rule {
 			}
 
 			if len(title) > 0 {
+				if len(alt) == 0 {
+					alt = title
+				}
 				return "![" + alt + "]" + "(" + src + " \"" + title + "\")"
+			}
+			if len(alt) == 0 {
+				alt = "image"
 			}
 			return "![" + alt + "]" + "(" + src + ")"
 		},
@@ -224,6 +230,11 @@ func blockQuote(content string) string {
 	return content
 }
 
+func Remove(ct, tag string) string {
+	re := regexp.MustCompile("\\<" + tag + "[\\S\\s]+?\\</" + tag + "\\>")
+	return re.ReplaceAllString(ct, "")
+}
+
 func cleanUp(ct string) string {
 	// trim leading/trailing whitespace
 	str := regexp.MustCompile("^[\t\r\n]+|[\t\r\n]+$").ReplaceAllString(ct, "")
@@ -232,15 +243,13 @@ func cleanUp(ct string) string {
 	str = regexp.MustCompile(`\n{3,}`).ReplaceAllString(str, "\n\n")
 
 	//去除STYLE
-	re := regexp.MustCompile("\\<style[\\S\\s]+?\\</style\\>")
-	str = re.ReplaceAllString(str, "")
+	str = Remove(str, "style")
 
 	//去除SCRIPT
-	re = regexp.MustCompile("\\<script[\\S\\s]+?\\</script\\>")
-	str = re.ReplaceAllString(str, "")
+	str = Remove(str, "script")
 
 	//去除所有尖括号内的HTML代码，并换成换行符
-	re = regexp.MustCompile("\\<[\\S\\s]+?\\>")
+	re := regexp.MustCompile("\\<[\\S\\s]+?\\>")
 	str = re.ReplaceAllString(str, "\n")
 
 	//去除连续的换行符
