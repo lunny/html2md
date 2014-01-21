@@ -16,7 +16,7 @@ type Rule struct {
 }
 
 func AttrRegExp(attr string) *regexp.Regexp {
-	return regexp.MustCompile(attr + `\s*=\s*["]?([^"\"]*)["]?`)
+	return regexp.MustCompile(attr + `\s*=\s*["']?([^"\"']*)["']?`)
 }
 
 var (

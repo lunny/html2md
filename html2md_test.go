@@ -14,7 +14,10 @@ var (
 	<hr>
 	<b>strong</b>
 	<strong>sss</strong>
-	<img src="a.png" title="test", alt="ss"/>
+	<img src="a.png" title="test" alt="ss"/>
+	<img src="b.png" title="test" alt="ssb" />
+
+	<img src='http://www.lunny.info/wp-content/uploads/2007/04/a710is.jpg' alt='A710IS' />
 
 	<pre>
 
