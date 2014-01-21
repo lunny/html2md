@@ -122,6 +122,15 @@ func A() *Rule {
 	}
 }
 
+func SameRule(tag string, tp int) *Rule {
+	return &Rule{patterns: []string{tag},
+		tp: tp,
+		replacement: func(innerHTML string, attrs []string) string {
+			return innerHTML
+		},
+	}
+}
+
 func Img() *Rule {
 	return &Rule{
 		patterns: []string{"img"},
