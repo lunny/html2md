@@ -11,8 +11,8 @@ import (
 
 func P() *Rule {
 	return &Rule{
-		patterns: []string{"p"},
-		replacement: func(innerHTML string, attrs []string) string {
+		Patterns: []string{"p"},
+		Replacement: func(innerHTML string, attrs []string) string {
 			if len(attrs) > 1 {
 				return "\n\n" + attrs[1] + "\n"
 			}
@@ -23,9 +23,9 @@ func P() *Rule {
 
 func Br() *Rule {
 	return &Rule{
-		patterns: []string{"br"},
-		tp:       Void,
-		replacement: func(innerHTML string, attrs []string) string {
+		Patterns: []string{"br"},
+		Tp:       Void,
+		Replacement: func(innerHTML string, attrs []string) string {
 			return "  \n"
 		},
 	}
@@ -33,8 +33,8 @@ func Br() *Rule {
 
 func H() *Rule {
 	return &Rule{
-		patterns: []string{"h([1-6])"},
-		replacement: func(innerHTML string, attrs []string) string {
+		Patterns: []string{"h([1-6])"},
+		Replacement: func(innerHTML string, attrs []string) string {
 			if len(attrs) < 4 || attrs[0] != attrs[len(attrs)-1] {
 				return ""
 			}
@@ -53,9 +53,9 @@ func H() *Rule {
 
 func Hr() *Rule {
 	return &Rule{
-		patterns: []string{"hr"},
-		tp:       Void,
-		replacement: func(innerHTML string, attrs []string) string {
+		Patterns: []string{"hr"},
+		Tp:       Void,
+		Replacement: func(innerHTML string, attrs []string) string {
 			return "\n\n* * *\n"
 		},
 	}
@@ -63,8 +63,8 @@ func Hr() *Rule {
 
 func B() *Rule {
 	return &Rule{
-		patterns: []string{"b", "strong"},
-		replacement: func(innerHTML string, attrs []string) string {
+		Patterns: []string{"b", "strong"},
+		Replacement: func(innerHTML string, attrs []string) string {
 			if len(attrs) > 1 {
 				return "**" + attrs[1] + "**"
 			}
@@ -75,8 +75,8 @@ func B() *Rule {
 
 func I() *Rule {
 	return &Rule{
-		patterns: []string{"i", "em"},
-		replacement: func(innerHTML string, attrs []string) string {
+		Patterns: []string{"i", "em"},
+		Replacement: func(innerHTML string, attrs []string) string {
 			if len(attrs) > 1 {
 				return "_" + attrs[1] + "_"
 			}
@@ -87,8 +87,8 @@ func I() *Rule {
 
 func Code() *Rule {
 	return &Rule{
-		patterns: []string{"code"},
-		replacement: func(innerHTML string, attrs []string) string {
+		Patterns: []string{"code"},
+		Replacement: func(innerHTML string, attrs []string) string {
 			if len(attrs) > 1 {
 				return "`" + attrs[1] + "`"
 			}
@@ -99,8 +99,8 @@ func Code() *Rule {
 
 func A() *Rule {
 	return &Rule{
-		patterns: []string{"a"},
-		replacement: func(innerHTML string, attrs []string) string {
+		Patterns: []string{"a"},
+		Replacement: func(innerHTML string, attrs []string) string {
 			var href string
 			hrefR := AttrRegExp("href")
 			matches := hrefR.FindStringSubmatch(attrs[0])
@@ -123,9 +123,9 @@ func A() *Rule {
 }
 
 func SameRule(tag string, tp int) *Rule {
-	return &Rule{patterns: []string{tag},
-		tp: tp,
-		replacement: func(innerHTML string, attrs []string) string {
+	return &Rule{Patterns: []string{tag},
+		Tp: tp,
+		Replacement: func(innerHTML string, attrs []string) string {
 			return innerHTML
 		},
 	}
@@ -133,9 +133,9 @@ func SameRule(tag string, tp int) *Rule {
 
 func Img() *Rule {
 	return &Rule{
-		patterns: []string{"img"},
-		tp:       Void,
-		replacement: func(innerHTML string, attrs []string) string {
+		Patterns: []string{"img"},
+		Tp:       Void,
+		Replacement: func(innerHTML string, attrs []string) string {
 			var src, alt, title string
 			srcR := AttrRegExp("src")
 			matches := srcR.FindStringSubmatch(attrs[0])
@@ -328,8 +328,8 @@ func init() {
 
 func Convert(content string) string {
 	for _, rule := range rules {
-		for _, pattern := range rule.patterns {
-			content = replaceEls(content, pattern, rule.tp, rule.replacement)
+		for _, pattern := range rule.Patterns {
+			content = replaceEls(content, pattern, rule.Tp, rule.Replacement)
 		}
 	}
 
