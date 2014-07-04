@@ -10,9 +10,9 @@ const (
 type ReplaceFunc func(string, []string) string
 
 type Rule struct {
-	patterns    []string
-	tp          int
-	replacement ReplaceFunc
+	Patterns    []string
+	Tp          int
+	Replacement ReplaceFunc
 }
 
 func AttrRegExp(attr string) *regexp.Regexp {
