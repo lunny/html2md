@@ -66,7 +66,7 @@ func B() *Rule {
 		Patterns: []string{"b", "strong"},
 		Replacement: func(innerHTML string, attrs []string) string {
 			if len(attrs) > 1 {
-				return "**" + attrs[1] + "**"
+				return wrapInlineTag(attrs[1], "**", "**")
 			}
 			return ""
 		},
@@ -78,7 +78,7 @@ func I() *Rule {
 		Patterns: []string{"i", "em"},
 		Replacement: func(innerHTML string, attrs []string) string {
 			if len(attrs) > 1 {
-				return "_" + attrs[1] + "_"
+				return wrapInlineTag(attrs[1], "_", "_")
 			}
 			return ""
 		},
@@ -117,7 +117,7 @@ func A() *Rule {
 			//if len(target) > 0 {
 			//	return "[" + alt + "]" + "(" + src + " \"" + title + "\")"
 			//}
-			return "[" + attrs[1] + "]" + "(" + href + ")"
+			return wrapInlineTag(attrs[1], "[", "]") + "(" + href + ")"
 		},
 	}
 }
@@ -306,6 +306,17 @@ func ulol(tag, content string) string {
 	return re.ReplaceAllStringFunc(content, func(str string) string {
 		return replaceLists(tag, str)
 	})
+}
+
+func wrapInlineTag(content, openWrap, closeWrap string) string {
+	wrappedStr := openWrap + strings.TrimSpace(content) + closeWrap
+	if regexp.MustCompile(`^\s.*`).MatchString(content) {
+		wrappedStr = " " + wrappedStr
+	}
+	if regexp.MustCompile(`.*\s$`).MatchString(content) {
+		wrappedStr = wrappedStr + " "
+	}
+	return wrappedStr
 }
 
 func init() {
