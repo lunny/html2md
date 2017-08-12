@@ -1,5 +1,5 @@
 
-Html2md is an implementation of converting html to markdown for Go.
+Html2md is a Go library for converting html to markdown.
 
 # Installation
 
@@ -13,13 +13,13 @@ Or
 
 # Usage
 
-* Html2md has some html tag Rules. For simple use, just use
+* Html2md already has some built-in html tag rules. For basic use:
 
 ```Go
     md := html2md.Convert(html)
 ```
 
-* If you want to use your self Rule. You can
+* If you want to add your own rules, you can
 
 ```Go
    html2md.AddRule(&html2md.Rule{
@@ -34,12 +34,12 @@ Or
 or
 
 ```Go
-html2md.AddConvert(func(conent string) string {
+html2md.AddConvert(func(content string) string {
     return strings.ToLower(content)
 })
 ```
 
-# Documents
+# Docs
 
 * [GoDoc](http://godoc.org/github.com/lunny/html2md)
 
