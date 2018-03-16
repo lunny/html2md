@@ -46,7 +46,7 @@ func H() *Rule {
 			}
 
 			return "\n\n" + strings.Repeat("#", hLevel) +
-				" " + attrs[2] + "\n"
+				" " + strings.Replace(strings.Replace(attrs[2], "\n", " ", -1), "\r", " ", -1) + "\n"
 		},
 	}
 }
