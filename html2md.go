@@ -87,7 +87,7 @@ func I() *Rule {
 
 func Code() *Rule {
 	return &Rule{
-		Patterns: []string{"code", "tt"},
+		Patterns: []string{"code", "tt", "pre"},
 		Replacement: func(innerHTML string, attrs []string) string {
 			if len(attrs) > 1 {
 				return "`" + attrs[1] + "`"
