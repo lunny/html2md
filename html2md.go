@@ -211,7 +211,7 @@ func replaceLists(tag, html string) string {
 		return strings.Join(newLis, "\n")
 	})
 
-	return "\n\n" + regexp.MustCompile(`[ \t]+\n|\s+$`).ReplaceAllString(html, "")
+	return "\n\n" + regexp.MustCompile(`[ \t]+\n|\s+$`).ReplaceAllString(html, "\n")
 }
 
 func replaceBlockquotes(html string) string {

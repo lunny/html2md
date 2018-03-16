@@ -99,6 +99,11 @@ Containing
 Newlines
 
 </h3>
+<ul>
+	<li>List items </li>
+	<li>Ending with </li>
+	<li>A space </li>
+</ul>
 `}
 )
 
