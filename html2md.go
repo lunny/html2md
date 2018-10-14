@@ -319,6 +319,10 @@ func wrapInlineTag(content, openWrap, closeWrap string) string {
 	return wrappedStr
 }
 
+func WrapInlineTag(content, openWrap, closeWrap string) string {
+  return wrapInlineTag(content, openWrap, closeWrap)
+}
+
 func init() {
 	AddRule("p", P())
 	AddRule("i", I())
