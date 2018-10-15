@@ -46,7 +46,7 @@ func H() *Rule {
 			}
 
 			return "\n\n" + strings.Repeat("#", hLevel) +
-				" " + attrs[2] + "\n"
+				" " + strings.Replace(strings.Replace(attrs[2], "\n", " ", -1), "\r", " ", -1) + "\n"
 		},
 	}
 }
@@ -211,7 +211,7 @@ func replaceLists(tag, html string) string {
 		return strings.Join(newLis, "\n")
 	})
 
-	return "\n\n" + regexp.MustCompile(`[ \t]+\n|\s+$`).ReplaceAllString(html, "")
+	return "\n\n" + regexp.MustCompile(`[ \t]+\n|\s+$`).ReplaceAllString(html, "\n")
 }
 
 func replaceBlockquotes(html string) string {

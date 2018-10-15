@@ -91,6 +91,19 @@ alert(i);
 </blockquote>
 <span><em>Some EM</em></span>
 <h2 id="some-title">An id title Test</h2>
+<h3>
+
+Header
+Containing
+
+Newlines
+
+</h3>
+<ul>
+	<li>List items </li>
+	<li>Ending with </li>
+	<li>A space </li>
+</ul>
 `}
 )
 
