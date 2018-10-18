@@ -220,7 +220,7 @@ func replaceBlockquotes(html string) string {
 		matches := re.FindStringSubmatch(inner)
 		inner = regexp.MustCompile(`^\s+|\s+$`).ReplaceAllString(matches[1], "")
 		inner = cleanUp(inner)
-		inner = regexp.MustCompile(`^/gm`).ReplaceAllString(inner, "> ")
+		inner = regexp.MustCompile(`(?m)^`).ReplaceAllString(inner, "> ")
 		inner = regexp.MustCompile(`^(>([ \t]{2,}>)+)`).ReplaceAllString(inner, "> >")
 		return inner
 	})
