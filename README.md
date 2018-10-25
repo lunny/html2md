@@ -22,7 +22,7 @@ Or
 * If you want to add your own rules, you can
 
 ```Go
-   html2md.AddRule(&html2md.Rule{
+   html2md.AddRule("hr", &html2md.Rule{
        patterns: []string{"hr"},
 	   tp:       Void,
 	   replacement: func(innerHTML string, attrs []string) string {
