@@ -34,10 +34,13 @@ Or
 or
 
 ```Go
-html2md.AddConvert(func(content string) string {
+html2md.AddConvert(60, func(content string) string {
     return strings.ToLower(content)
 })
 ```
+
+Converts are executed in order. The builtin converts are 10-50. Choose
+your own value to override the builtins or run yours before/after.
 
 # Docs
 
