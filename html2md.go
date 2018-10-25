@@ -320,7 +320,7 @@ func wrapInlineTag(content, openWrap, closeWrap string) string {
 }
 
 func WrapInlineTag(content, openWrap, closeWrap string) string {
-  return wrapInlineTag(content, openWrap, closeWrap)
+	return wrapInlineTag(content, openWrap, closeWrap)
 }
 
 func init() {
