@@ -334,11 +334,11 @@ func init() {
 	AddRule("code", Code())
 	AddRule("a", A())
 
-	AddConvert(pre)
-	AddConvert(ul)
-	AddConvert(ol)
-	AddConvert(blockQuote)
-	AddConvert(cleanUp)
+	AddConvert("pre", pre)
+	AddConvert("ul", ul)
+	AddConvert("ol", ol)
+	AddConvert("blockquote", blockQuote)
+	AddConvert("cleanup", cleanUp)
 }
 
 func Convert(content string) string {
