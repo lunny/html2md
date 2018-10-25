@@ -334,11 +334,11 @@ func init() {
 	AddRule("code", Code())
 	AddRule("a", A())
 
-	AddConvert("pre", pre)
-	AddConvert("ul", ul)
-	AddConvert("ol", ol)
-	AddConvert("blockquote", blockQuote)
-	AddConvert("cleanup", cleanUp)
+	AddConvert(10, pre)
+	AddConvert(20, ul)
+	AddConvert(30, ol)
+	AddConvert(40, blockQuote)
+	AddConvert(50, cleanUp)
 }
 
 func Convert(content string) string {
@@ -348,8 +348,15 @@ func Convert(content string) string {
 		}
 	}
 
-	for _, convert := range converts {
-		content = convert(content)
+	// Source: https://stackoverflow.com/a/18342865/504018
+	keys := make([]int, 0)
+	for k, _ := range converts {
+		keys = append(keys, k)
+	}
+	sort.Ints(keys)
+
+	for order := range keys {
+		content = convert[order](content)
 	}
 
 	return content

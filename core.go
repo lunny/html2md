@@ -21,13 +21,13 @@ func AttrRegExp(attr string) *regexp.Regexp {
 
 var (
 	rules    = make(map[string]*Rule)
-	converts = make(map[string]func(string) string)
+	converts = make(map[int]func(string) string)
 )
 
 func AddRule(name string, rule *Rule) {
 	rules[name] = rule
 }
 
-func AddConvert(name string, f func(string) string) {
-	converts[name] = f
+func AddConvert(order int, f func(string) string) {
+	converts[order] = f
 }
